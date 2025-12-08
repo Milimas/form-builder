@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nested Objects Form</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 1200px;
+      width: 100%;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+    
+    .section {
+      margin-bottom: 25px;
+    }
+    
+    .section-title {
+      color: #667eea;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      color: #555;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    
+    .item-group {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .item-title {
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+    
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      width: 100%;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #555;
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+    
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+    
+    .btn-add {
+      background: #4caf50;
+      color: white;
+      margin-top: 10px;
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+    
+    .btn-add:hover {
+      background: #45a049;
+    }
+    
+    .output {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    
+    .output h2 {
+      color: #fff;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    pre {
+      margin: 0;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .key {
+      color: #9cdcfe;
+    }
+    
+    .string {
+      color: #ce9178;
+    }
+    
+    .number {
+      color: #b5cea8;
+    }
+    
+    @media (max-width: 968px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>User Registration Form</h1>
+      <p class="subtitle">Example of nested objects in forms</p>
+      
+      <form id="userForm">
+        <!-- Basic Info -->
+        <div class="section">
+          <div class="section-title">Basic Information</div>
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" value="johndoe" required>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" value="john@example.com" required>
+          </div>
+        </div>
+        
+        <!-- Profile (nested object) -->
+        <div class="section">
+          <div class="section-title">Profile Details</div>
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" name="profile.firstName" value="John" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" name="profile.lastName" value="Doe" required>
+          </div>
+          <div class="form-group">
+            <label>Bio</label>
+            <textarea name="profile.bio">Full-stack developer and coffee enthusiast</textarea>
+          </div>
+        </div>
+        
+        <!-- Address (deeply nested) -->
+        <div class="section">
+          <div class="section-title">Address</div>
+          <div class="form-group">
+            <label>Street</label>
+            <input type="text" name="profile.address.street" value="123 Main Street">
+          </div>
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" name="profile.address.city" value="New York">
+          </div>
+          <div class="form-group">
+            <label>ZIP Code</label>
+            <input type="text" name="profile.address.zip" value="10001">
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <input type="text" name="profile.address.country" value="USA">
+          </div>
+        </div>
+        
+        <!-- Items (array of objects) -->
+        <div class="section">
+          <div class="section-title">Favorite Products (Array)</div>
+          <div id="itemsContainer">
+            <div class="item-group">
+              <div class="item-header">
+                <span class="item-title">Product #1</span>
+                <button type="button" class="btn-secondary" onclick="removeItem(this)">Remove</button>
+              </div>
+              <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" name="items[0].name" value="Laptop">
+              </div>
+              <div class="form-group">
+                <label>Price</label>
+                <input type="number" name="items[0].price" value="999.99" step="0.01">
+              </div>
+            </div>
+            
+            <div class="item-group">
+              <div class="item-header">
+                <span class="item-title">Product #2</span>
+                <button type="button" class="btn-secondary" onclick="removeItem(this)">Remove</button>
+              </div>
+              <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" name="items[1].name" value="Mouse">
+              </div>
+              <div class="form-group">
+                <label>Price</label>
+                <input type="number" name="items[1].price" value="29.99" step="0.01">
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="addItem()">+ Add Product</button>
+        </div>
+        
+        <button type="submit" class="btn-primary">Submit Form</button>
+      </form>
+    </div>
+    
+    <div class="card">
+      <div class="output">
+        <h2>📦 Parsed Object</h2>
+        <pre id="output">{}</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let itemCount = 2;
+    
+    // Parse form data with dot notation into nested objects
+    function parseFormData(formData) {
+      const result = {};
+      
+      for (const [key, value] of formData.entries()) {
+        // Handle array notation: items[0].name
+        const arrayMatch = key.match(/^(\w+)\[(\d+)\]\.(\w+)$/);
+        if (arrayMatch) {
+          const [, arrayName, index, prop] = arrayMatch;
+          if (!result[arrayName]) result[arrayName] = [];
+          if (!result[arrayName][index]) result[arrayName][index] = {};
+          result[arrayName][index][prop] = isNaN(value) ? value : parseFloat(value);
+          continue;
+        }
+        
+        // Handle dot notation: profile.address.city
+        const keys = key.split('.');
+        let current = result;
+        
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!current[keys[i]]) current[keys[i]] = {};
+          current = current[keys[i]];
+        }
+        
+        current[keys[keys.length - 1]] = value;
+      }
+      
+      return result;
+    }
+    
+    // Syntax highlighting for JSON
+    function syntaxHighlight(json) {
+      json = JSON.stringify(json, null, 2);
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'key';
+          } else {
+            cls = 'string';
+          }
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    }
+    
+    // Update output display
+    function updateOutput() {
+      const form = document.getElementById('userForm');
+      const formData = new FormData(form);
+      const parsed = parseFormData(formData);
+      document.getElementById('output').innerHTML = syntaxHighlight(parsed);
+    }
+    
+    // Add new item
+    function addItem() {
+      const container = document.getElementById('itemsContainer');
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'item-group';
+      itemDiv.innerHTML = `
+        <div class="item-header">
+          <span class="item-title">Product #${itemCount + 1}</span>
+          <button type="button" class="btn-secondary" onclick="removeItem(this)">Remove</button>
+        </div>
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" name="items[${itemCount}].name" value="New Product">
+        </div>
+        <div class="form-group">
+          <label>Price</label>
+          <input type="number" name="items[${itemCount}].price" value="0.00" step="0.01">
+        </div>
+      `;
+      container.appendChild(itemDiv);
+      itemCount++;
+      updateOutput();
+    }
+    
+    // Remove item
+    function removeItem(button) {
+      button.closest('.item-group').remove();
+      reindexItems();
+      updateOutput();
+    }
+    
+    // Reindex items after removal
+    function reindexItems() {
+      const items = document.querySelectorAll('.item-group');
+      items.forEach((item, index) => {
+        item.querySelector('.item-title').textContent = `Product #${index + 1}`;
+        item.querySelectorAll('input').forEach(input => {
+          const name = input.name;
+          input.name = name.replace(/\[\d+\]/, `[${index}]`);
+        });
+      });
+      itemCount = items.length;
+    }
+    
+    // Form submission
+    document.getElementById('userForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const parsed = parseFormData(formData);
+      
+      console.log('Parsed Form Data:', parsed);
+      alert('Form submitted! Check the console and the right panel for the parsed object.');
+    });
+    
+    // Update output on any input change
+    document.getElementById('userForm').addEventListener('input', updateOutput);
+    
+    // Initial output
+    updateOutput();
+  </script>
+</body>
+</html>

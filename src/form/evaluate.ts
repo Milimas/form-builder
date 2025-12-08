@@ -27,6 +27,9 @@ export function evaluate(
       if (typeof data !== "string") {
         addError(`Expected string, got ${typeof data}`);
       } else {
+        if (schema.options !== undefined && !schema.options.includes(data)) {
+          addError(`Value must be one of: ${schema.options.join(", ")}`);
+        }
         if (schema.minLength !== undefined && data.length < schema.minLength) {
           addError(`String length must be at least ${schema.minLength}`);
         }
@@ -44,6 +47,9 @@ export function evaluate(
       if (typeof data !== "number" || Number.isNaN(data)) {
         addError(`Expected number, got ${typeof data}`);
       } else {
+        if (schema.options !== undefined && !schema.options.includes(data)) {
+          addError(`Value must be one of: ${schema.options.join(", ")}`);
+        }
         if (schema.min !== undefined && data < schema.min) {
           addError(`Number must be at least ${schema.min}`);
         }

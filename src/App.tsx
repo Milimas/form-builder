@@ -21,6 +21,18 @@ const schema = {
       type: "number",
       required: true,
     },
+    // New: string with options - infers "active" | "inactive" | "pending"
+    status: {
+      type: "string",
+      options: ["active", "inactive", "pending"],
+      required: true,
+    },
+    // New: number with options - infers 1 | 2 | 3 | 4 | 5
+    priority: {
+      type: "number",
+      options: [1, 2, 3, 4, 5],
+      required: true,
+    },
     isStudent: {
       type: "boolean",
       required: true,
@@ -59,6 +71,8 @@ const data: InferedInput<typeof schema> = {
   lastName: "Doe",
   email: "john.doe@example.com",
   age: 20,
+  status: "inactive", // Type-safe: only "active" | "inactive" | "pending" allowed
+  priority: 3, // Type-safe: only 1 | 2 | 3 | 4 | 5 allowed
   isStudent: true,
   dateOfBirth: new Date(),
   hobbies: [
