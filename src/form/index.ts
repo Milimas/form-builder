@@ -10,6 +10,3 @@ export type {
   ValidationError,
   ValidationResult,
 } from "./types.ts";
-
-export { evaluate } from "./evaluate.ts";
-

@@ -1,10 +1,11 @@
 export interface BaseInput {
   type: string;
-  default?: unknown;
+  defaultValue?: unknown;
   required?: boolean;
 }
 
-export interface StringInput<T extends readonly string[] = readonly string[]>  extends BaseInput {
+export interface StringInput<T extends readonly string[] = readonly string[]>
+  extends BaseInput {
   type: "string";
   default?: string;
   options?: T;
@@ -13,7 +14,8 @@ export interface StringInput<T extends readonly string[] = readonly string[]>  e
   pattern?: RegExp;
 }
 
-export interface NumberInput<T extends readonly number[] = readonly number[]> extends BaseInput {
+export interface NumberInput<T extends readonly number[] = readonly number[]>
+  extends BaseInput {
   type: "number";
   default?: number;
   options?: T;
@@ -42,6 +44,7 @@ export interface ArrayInput extends BaseInput {
 
 export interface ObjectInput extends BaseInput {
   type: "object";
+  defaultValue?: Record<string, unknown>;
   properties: Record<string, Input>;
 }
 
@@ -72,27 +75,27 @@ export type InferedInput<T extends Input> = T extends {
 }
   ? O[number]
   : T extends { type: "string" }
-    ? string
-    : T extends { type: "number"; options: infer O extends readonly number[] }
-      ? O[number]
-      : T extends { type: "number" }
-        ? number
-        : T extends { type: "boolean" }
-          ? boolean
-          : T extends { type: "date" }
-            ? Date
-            : T extends { type: "array"; items: infer I extends Input }
-              ? InferedInput<I>[]
-              : T extends {
-                    type: "object";
-                    properties: infer P extends Record<string, Input>;
-                  }
-                ? Prettify<
-                    { [K in RequiredKeys<P>]: InferedInput<P[K]> } & {
-                      [K in OptionalKeys<P>]?: InferedInput<P[K]>;
-                    }
-                  >
-                : never;
+  ? string
+  : T extends { type: "number"; options: infer O extends readonly number[] }
+  ? O[number]
+  : T extends { type: "number" }
+  ? number
+  : T extends { type: "boolean" }
+  ? boolean
+  : T extends { type: "date" }
+  ? Date
+  : T extends { type: "array"; items: infer I extends Input }
+  ? InferedInput<I>[]
+  : T extends {
+      type: "object";
+      properties: infer P extends Record<string, Input>;
+    }
+  ? Prettify<
+      { [K in RequiredKeys<P>]: InferedInput<P[K]> } & {
+        [K in OptionalKeys<P>]?: InferedInput<P[K]>;
+      }
+    >
+  : never;
 
 // Validation result types
 export interface ValidationError {
@@ -104,4 +107,3 @@ export interface ValidationError {
 export type ValidationResult =
   | { success: true; data: unknown }
   | { success: false; errors: ValidationError[] };
-
