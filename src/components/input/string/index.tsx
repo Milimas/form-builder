@@ -218,7 +218,7 @@ function FieldRenderer({ fieldKey, fieldSchema, formValues, updateField, parentP
     const fieldValue = getNestedValue(formValues, fullPath);
 
     // Check if field should be visible based on dependsOn
-    const isVisible = evaluateDependsOn(fieldSchema['data-dependsOn'], formValues);
+    const isVisible = evaluateDependsOn(fieldSchema['data-depends-on'], formValues);
 
     // Reset to default value when field becomes invisible
     React.useEffect(() => {
@@ -375,7 +375,7 @@ function FieldRenderer({ fieldKey, fieldSchema, formValues, updateField, parentP
 }
 
 function getDefaultValue(schema: any, formValues: Record<string, unknown> = {}): any {
-    const isVisible = evaluateDependsOn(schema['data-dependsOn'] || [], formValues);
+    const isVisible = evaluateDependsOn(schema['data-depends-on'] || [], formValues);
     if (!isVisible) {
         return undefined;
     }
@@ -419,7 +419,7 @@ export function DynamicForm({ schema }: { schema: ObjectInput }) {
         const validateField = (fieldKey: string, fieldSchema: any, value: any, parentPath = ''): void => {
             const fullPath = parentPath ? `${parentPath}.${fieldKey}` : fieldKey;
 
-            const isVisible = evaluateDependsOn(fieldSchema['data-dependsOn'], formValues);
+            const isVisible = evaluateDependsOn(fieldSchema['data-depends-on'], formValues);
             if (!isVisible) {
                 return;
             }
