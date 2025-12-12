@@ -103,19 +103,36 @@ function DatetimeInput({ className = '', children, label, hidden, ...inputProps 
     );
 }
 
-// Helper function to evaluate dependsOn conditions
 function evaluateDependsOn(dependsOn: { field: string; condition: string }[], formValues: Record<string, unknown>): boolean {
     if (!dependsOn || dependsOn.length === 0) return true;
 
+    const toRegex = (condition: string): RegExp | null => {
+        // If condition is wrapped like /.../flags, extract it
+        const regexLiteralMatch = condition.match(/^\/(.*)\/(\w*)$/);
+        if (regexLiteralMatch) {
+            try {
+                return new RegExp(regexLiteralMatch[1], regexLiteralMatch[2]);
+            } catch {
+                return null;
+            }
+        }
+        // Otherwise treat the string as pattern without slashes
+        try {
+            return new RegExp(condition);
+        } catch {
+            return null;
+        }
+    };
+
     return dependsOn.every(({ field, condition }) => {
         const fieldValue = getNestedValue(formValues, field);
-        try {
-            // Safely evaluate the condition string
-            const result: boolean = eval(condition)(fieldValue);
-            return result;
-        } catch (_) {
-            return false;
+
+        const regex = toRegex(condition);
+        if (regex) {
+            return regex.test(String(fieldValue ?? ""));
         }
+
+        return false;
     });
 }
 
