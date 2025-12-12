@@ -24,8 +24,12 @@ export function evaluateDependsOn(
     }
   };
 
-  const getNestedValue = (obj: any, path: string): unknown => {
-    return path.split(".").reduce((acc, part) => acc?.[part], obj);
+  const getNestedValue = (
+    obj: Record<string, unknown>,
+    path: string
+  ): unknown => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return path.split(".").reduce((acc: any, part) => acc?.[part], obj);
   };
 
   return dependsOn.every(({ field, condition }) => {

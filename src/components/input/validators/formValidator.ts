@@ -11,15 +11,21 @@ export interface ValidationResult {
 /**
  * Validates form data against schema
  */
+import { ObjectInput } from "../../../form/types";
+
 export function validateForm(
   formValues: Record<string, unknown>,
-  schema: any
+  schema: ObjectInput
 ): ValidationResult {
   const errors: string[] = [];
 
+  // Using any for runtime schema flexibility
+
   const validateField = (
     fieldKey: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fieldSchema: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
     parentPath = ""
   ): void => {
@@ -99,11 +105,15 @@ export function validateForm(
       }
     } else {
       // For primitive types, check required
-      if (
-        fieldSchema.required &&
-        (value === undefined || value === null || value === "")
-      ) {
-        errors.push(`${fullPath} is required`);
+      if (fieldSchema.required) {
+        // Special handling for checkboxes - they must be explicitly set (true or false)
+        if (fieldSchema.type === "boolean") {
+          if (value === undefined || value === null) {
+            errors.push(`${fullPath} is required`);
+          }
+        } else if (value === undefined || value === null || value === "") {
+          errors.push(`${fullPath} is required`);
+        }
       }
     }
   };

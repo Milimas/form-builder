@@ -4,10 +4,12 @@ import { FieldRenderer } from './components/FieldRenderer';
 import { validateForm } from './validators';
 import { toast } from 'sonner';
 
+// Using any for schema to support flexible runtime schemas
 interface DynamicFormProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     schema: any;
-    onSubmit?: (values: any) => void | Promise<void>;
-    onSubmitSuccess?: (values: any) => void;
+    onSubmit?: (values: Record<string, unknown>) => void | Promise<void>;
+    onSubmitSuccess?: (values: Record<string, unknown>) => void;
     onSubmitError?: () => void;
 }
 

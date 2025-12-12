@@ -1,5 +1,6 @@
 export { DynamicForm } from "./DynamicForm";
 export { FormProvider, FormContext } from "./context/FormContext";
+export type { FormContextType } from "./context/FormContextType";
 export { useForm } from "./hooks/useForm";
 export {
   evaluateDependsOn,

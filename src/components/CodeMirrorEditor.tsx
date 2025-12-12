@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { EditorState, StateEffect, StateField } from '@codemirror/state';
+import { EditorState, StateEffect, StateField, type Range } from '@codemirror/state';
 import { EditorView, Decoration, DecorationSet } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
 import { json } from '@codemirror/lang-json';
@@ -26,10 +26,10 @@ const highlightField = StateField.define<DecorationSet>({
     update(decorations, tr) {
         decorations = decorations.map(tr.changes);
 
-        for (let effect of tr.effects) {
+        for (const effect of tr.effects) {
             if (effect.is(setErrorsEffect)) {
                 const errorPaths = effect.value;
-                const marks: any[] = [];
+                const marks: Range<Decoration>[] = [];
                 const doc = tr.state.doc;
 
                 // Find lines containing error paths
@@ -54,7 +54,7 @@ const highlightField = StateField.define<DecorationSet>({
 
             if (effect.is(setValidEffect)) {
                 const validPaths = effect.value;
-                const marks: any[] = [];
+                const marks: Range<Decoration>[] = [];
                 const doc = tr.state.doc;
 
                 // Find lines containing valid paths
@@ -117,7 +117,7 @@ export function CodeMirrorEditor({
         return () => {
             view.destroy();
         };
-    }, [readOnly]);
+    }, [readOnly, value]);
 
     // Update content when value changes
     useEffect(() => {

@@ -6,8 +6,10 @@ import { DatetimeInput } from './DatetimeInput';
 import { useForm } from '../hooks';
 import { evaluateDependsOn, getDefaultValue, getNestedValue } from '../utils';
 
+// Using any for fieldSchema because runtime schema is more flexible than static types
 interface FieldRendererProps {
     fieldKey: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fieldSchema: any;
     parentPath?: string;
 }
@@ -43,6 +45,7 @@ export function FieldRenderer({
         return null;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleChange = (value: any) => {
         updateField(fullPath, value);
     };

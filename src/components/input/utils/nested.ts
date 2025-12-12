@@ -1,8 +1,12 @@
 /**
  * Helper to get nested values from objects using dot notation
  */
-export function getNestedValue(obj: any, path: string): unknown {
-  return path.split(".").reduce((acc, part) => acc?.[part], obj);
+export function getNestedValue(
+  obj: Record<string, unknown>,
+  path: string
+): unknown {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return path.split(".").reduce((acc: any, part) => acc?.[part], obj);
 }
 
 /**
@@ -15,8 +19,8 @@ export function setNestedValue(
   value: unknown
 ): void {
   const parts = path.split(".");
-  let current: any = obj;
-  let parent: any = null;
+  let current: Record<string, unknown> | unknown[] = obj;
+  let parent: Record<string, unknown> | unknown[] | null = null;
   let parentKey: string | number | null = null;
 
   for (let i = 0; i < parts.length; i++) {
@@ -33,21 +37,25 @@ export function setNestedValue(
       parent !== null &&
       parentKey !== null
     ) {
-      parent[parentKey as any] = {};
-      current = parent[parentKey as any];
+      (parent as Record<string, unknown>)[parentKey as string] = {};
+      current = (parent as Record<string, unknown>)[
+        parentKey as string
+      ] as Record<string, unknown>;
     }
 
     if (isLast) {
       if (isIndex) {
         if (!Array.isArray(current)) {
           if (parent !== null && parentKey !== null) {
-            parent[parentKey as any] = [];
-            current = parent[parentKey as any];
+            (parent as Record<string, unknown>)[parentKey as string] = [];
+            current = (parent as Record<string, unknown>)[
+              parentKey as string
+            ] as unknown[];
           } else {
             return;
           }
         }
-        (current as any[])[key as number] = value;
+        (current as unknown[])[Number(key)] = value;
       } else {
         (current as Record<string, unknown>)[key as string] = value;
       }
@@ -57,8 +65,10 @@ export function setNestedValue(
     if (isIndex) {
       if (!Array.isArray(current)) {
         if (parent !== null && parentKey !== null) {
-          parent[parentKey as any] = [];
-          current = parent[parentKey as any];
+          (parent as Record<string, unknown>)[parentKey as string] = [];
+          current = (parent as Record<string, unknown>)[
+            parentKey as string
+          ] as unknown[];
         } else {
           return;
         }
@@ -72,18 +82,24 @@ export function setNestedValue(
       }
       parent = current;
       parentKey = key;
-      current = current[key as number];
+      current = (current as unknown[])[Number(key)] as
+        | Record<string, unknown>
+        | unknown[];
     } else {
       if (
-        current[key as string] === undefined ||
-        current[key as string] === null ||
-        typeof current[key as string] !== "object"
+        (current as Record<string, unknown>)[key as string] === undefined ||
+        (current as Record<string, unknown>)[key as string] === null ||
+        typeof (current as Record<string, unknown>)[key as string] !== "object"
       ) {
-        current[key as string] = nextIsIndex ? [] : {};
+        (current as Record<string, unknown>)[key as string] = nextIsIndex
+          ? []
+          : {};
       }
       parent = current;
       parentKey = key;
-      current = current[key as string];
+      current = (current as Record<string, unknown>)[key as string] as
+        | Record<string, unknown>
+        | unknown[];
     }
   }
 }

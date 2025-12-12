@@ -77,7 +77,7 @@ console.log("Fetched schema:", schemaJson);
 export default function App() {
   const schemaJson = schema.toJSON();
   const initialValues = (() => {
-    const values: Record<string, any> = {};
+    const values: Record<string, unknown> = {};
     Object.entries(schemaJson.properties || {}).forEach(([key, fieldSchema]) => {
       values[key] = getDefaultValue(fieldSchema);
     });

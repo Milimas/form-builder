@@ -1,12 +1,9 @@
-import { createContext, useCallback, useState, ReactNode } from 'react';
+import { useCallback, useState, ReactNode } from 'react';
 import { setNestedValue } from '../utils/nested';
+import { FormContext, FormContextType } from './FormContextType';
 
-export interface FormContextType {
-    formValues: Record<string, unknown>;
-    updateField: (path: string, value: unknown) => void;
-}
-
-export const FormContext = createContext<FormContextType | undefined>(undefined);
+export { FormContext };
+export type { FormContextType };
 
 interface FormProviderProps {
     children: ReactNode;
