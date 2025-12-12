@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  validator: link:../validator
+
 importers:
 
   .:
@@ -26,6 +29,9 @@ importers:
       tailwindcss:
         specifier: ^4.0.12
         version: 4.0.12
+      validator:
+        specifier: link:../validator
+        version: link:../validator
     devDependencies:
       '@eslint/js':
         specifier: ^9.21.0

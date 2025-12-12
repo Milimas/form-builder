@@ -2,6 +2,7 @@
 import React, { useState, useCallback } from 'react';
 import { ObjectInput } from '../../../form';
 import { toast } from 'sonner';
+import s from 'validator';
 
 // Input component
 function Input({ className = '', children, label, list, dataList, pattern, hidden, ...inputProps }: {
@@ -474,26 +475,41 @@ export function DynamicForm({ schema }: { schema: ObjectInput }) {
             return;
         }
 
-        const response = await fetch('http://localhost:3000/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formValues),
+        // const response = await fetch('http://localhost:3000/submit', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(formValues),
+        // });
+
+        const schema = s.object({
+            name: s.string().minLength(2).maxLength(50).required(),
+            age: s.number().min(0).max(120).required(),
+            email: s.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).required(),
+            preferences: s
+                .object({
+                    newsletter: s.boolean().default(false),
+                    notifications: s.enum(["all", "mentions", "none"] as const).default("all"),
+                })
+                .required(),
+            tags: s.array(s.string().minLength(1).maxLength(20)).minLength(0).maxLength(10),
         });
-        if (response.ok) {
+        const response = schema.safeParse(formValues);
+        if (response.success) {
             setValidValues("valid");
-            toast.success('Form submitted successfully!', { description: await response.text() });
+            toast.success('Form submitted successfully!', { description: JSON.stringify(response.data, null, 2) });
         } else {
             setValidValues("invalid");
-            toast.error('Form submission failed.', { description: await response.text() });
+            toast.error('Form submission failed.', { description: response.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('\n') });
         }
         // continue the default form submission behavior
     };
 
     return (
-        <form action="http://localhost:3000/submit" method="POST" onSubmit={(e) => {
+        <form onSubmit={(e) => {
             e.preventDefault();
+            setValidValues("unknown");
             handleSubmit();
         }}>
             <fieldset className="mx-auto p-6 bg-gray-50 min-h-screen">
@@ -511,7 +527,7 @@ export function DynamicForm({ schema }: { schema: ObjectInput }) {
                     ))}
 
                     <button
-                        onClick={() => setValidValues("unknown")}
+                        type="submit"
                         className="mt-6 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 w-full"
                     >
                         Submit Form
@@ -531,6 +547,6 @@ export function DynamicForm({ schema }: { schema: ObjectInput }) {
                     </pre>
                 </div>
             </fieldset>
-        </form>
+        </form >
     );
 }
