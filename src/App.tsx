@@ -194,8 +194,8 @@ function AppContent({ schema }: { schema: ObjectInput }) {
           </div>
           <div className="flex-1 overflow-y-auto p-6 flex justify-center">
             <div className="w-full max-w-2xl">
-              <DynamicForm 
-                schema={schemaJson} 
+              <DynamicForm
+                schema={schemaJson}
                 onSubmitSuccess={(values) => {
                   console.log('Setting submission result:', values);
                   // Filter out undefined values before stringifying

@@ -25,18 +25,18 @@ const highlightField = StateField.define<DecorationSet>({
     },
     update(decorations, tr) {
         decorations = decorations.map(tr.changes);
-        
+
         for (let effect of tr.effects) {
             if (effect.is(setErrorsEffect)) {
                 const errorPaths = effect.value;
                 const marks: any[] = [];
                 const doc = tr.state.doc;
-                
+
                 // Find lines containing error paths
                 for (let i = 1; i <= doc.lines; i++) {
                     const line = doc.line(i);
                     const lineText = line.text;
-                    
+
                     for (const path of errorPaths) {
                         const pathParts = path.split('.');
                         const fieldName = pathParts[pathParts.length - 1];
@@ -48,20 +48,20 @@ const highlightField = StateField.define<DecorationSet>({
                         }
                     }
                 }
-                
+
                 decorations = Decoration.set(marks, true);
             }
-            
+
             if (effect.is(setValidEffect)) {
                 const validPaths = effect.value;
                 const marks: any[] = [];
                 const doc = tr.state.doc;
-                
+
                 // Find lines containing valid paths
                 for (let i = 1; i <= doc.lines; i++) {
                     const line = doc.line(i);
                     const lineText = line.text;
-                    
+
                     for (const path of validPaths) {
                         const pathParts = path.split('.');
                         const fieldName = pathParts[pathParts.length - 1];
@@ -73,11 +73,11 @@ const highlightField = StateField.define<DecorationSet>({
                         }
                     }
                 }
-                
+
                 decorations = Decoration.set(marks, true);
             }
         }
-        
+
         return decorations;
     },
     provide: f => EditorView.decorations.from(f)
@@ -135,7 +135,7 @@ export function CodeMirrorEditor({
     // Update error/valid highlights
     useEffect(() => {
         if (!editorRef.current) return;
-        
+
         if (errorPaths.length > 0) {
             editorRef.current.dispatch({
                 effects: setErrorsEffect.of(errorPaths)

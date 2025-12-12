@@ -1,4 +1,4 @@
 /**
  * Index for validators
  */
-export { validateForm, type ValidationResult } from './formValidator';
+export { validateForm, type ValidationResult } from "./formValidator";
