@@ -195,6 +195,14 @@ export function validateForm(
     validateField(key, fieldSchema, formValues[key]);
   });
 
+  const result = schema.safeParse(formValues);
+  if (!result.success) {
+    result.errors.forEach((err) => {
+      const path = err.path.join(".");
+      errors.push(`${path}: ${err.message}`);
+    });
+  }
+
   return {
     errors,
     isValid: errors.length === 0,

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useCallback } from 'react';
-import { ObjectInput } from '../../../form';
 import { toast } from 'sonner';
 import { SchemaType } from 'validator';
+import { HtmlObjectType } from '../../../../../validator/lib/types';
 
 // Input component
 function Input({ className = '', children, label, list, dataList, pattern, hidden, ...inputProps }: {
@@ -394,10 +394,11 @@ function getDefaultValue(schema: any, formValues: Record<string, unknown> = {}):
 }
 
 // Main Form component
-export function DynamicForm({ schema, validatorSchema }: { schema: ObjectInput, validatorSchema: SchemaType }) {
+export function DynamicForm({ schema }: { schema: SchemaType }) {
+    const schemaJson: HtmlObjectType = schema.toJSON() as HtmlObjectType;
     const [formValues, setFormValues] = useState(() => {
         // Initialize form with default values'
-        const initValues: Record<string, unknown> = getDefaultValue(schema);
+        const initValues: Record<string, unknown> = getDefaultValue(schemaJson);
         return initValues;
     });
 
@@ -459,15 +460,28 @@ export function DynamicForm({ schema, validatorSchema }: { schema: ObjectInput, 
         };
 
         // Validate all fields
-        Object.entries(schema.properties).forEach(([key, fieldSchema]) => {
+        Object.entries(schemaJson.properties).forEach(([key, fieldSchema]) => {
             validateField(key, fieldSchema, formValues[key]);
         });
 
         return errors;
     };
 
-    const handleSubmit = async (validatorSchema: SchemaType) => {
+    const handleSubmit = async () => {
         const validationErrors = validateForm();
+
+        const response = schema.safeParse(formValues);
+        if (response.success) {
+            setValidValues("valid");
+            toast.success('Form submitted successfully!', { description: JSON.stringify(response.data, null, 2) });
+            return;
+        } else {
+            setValidValues("invalid");
+            response.errors.forEach((err) => {
+                const path = err.path.join(".");
+                validationErrors.push(`${path} ${err.message}`);
+            });
+        }
 
         if (validationErrors.length > 0) {
             setValidValues("invalid");
@@ -475,14 +489,6 @@ export function DynamicForm({ schema, validatorSchema }: { schema: ObjectInput, 
             return;
         }
 
-        const response = validatorSchema.safeParse(formValues);
-        if (response.success) {
-            setValidValues("valid");
-            toast.success('Form submitted successfully!', { description: JSON.stringify(response.data, null, 2) });
-        } else {
-            setValidValues("invalid");
-            toast.error('Form submission failed.', { description: response.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('\n') });
-        }
         // continue the default form submission behavior
     };
 
@@ -490,13 +496,13 @@ export function DynamicForm({ schema, validatorSchema }: { schema: ObjectInput, 
         <form onSubmit={(e) => {
             e.preventDefault();
             setValidValues("unknown");
-            handleSubmit(validatorSchema);
+            handleSubmit();
         }}>
             <fieldset className="mx-auto p-6 bg-gray-50 min-h-screen">
                 <h1 className="text-3xl font-bold mb-6 text-gray-900">Dynamic Form Generator</h1>
 
                 <div className="bg-white p-6 rounded-lg shadow-lg">
-                    {Object.entries(schema.properties).map(([key, fieldSchema]) => (
+                    {Object.entries(schemaJson.properties).map(([key, fieldSchema]) => (
                         <FieldRenderer
                             key={key}
                             fieldKey={key}
