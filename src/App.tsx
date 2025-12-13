@@ -5,70 +5,41 @@ import { Toaster, toast } from "sonner";
 import { v } from "validator";
 import { useEffect, useState } from "react";
 
-const fileAttachmentSchema = v.object({
-  "@odata.type": v.string().default("#microsoft.graph.fileAttachment").readOnly(),
-  name: v.string().default("Attached File"),
-  contentType: v.string().default("text/plain"),
-  contentBytes: v.string(),
-});
-
-const eventAttachmentSchema = v.object({
-  "@odata.type": v.string().default("#microsoft.graph.eventAttachment").readOnly(),
-  name: v.string().default("Attached Event"),
-  event: v.object({
-    subject: v.string(),
-    body: v
-      .object({
-        contentType: v.enum(["None", "Text", "HTML"] as const).optional(),
-        text: v.string().dependsOn([{ field: "eventAttachmentSchema.event.body.contentType", condition: /Text/ }]),
-        html: v.html().dependsOn([{ field: "eventAttachmentSchema.event.body.contentType", condition: /HTML/ }]),
-      })
-      .optional(),
-    start: v.string().optional(),
-    end: v.string().optional(),
-    location: v
-      .object({
-        displayName: v.string().optional(),
-      })
-      .optional(),
-    attendees: v
-      .array(
-        v.object({
-          emailAddress: v.object({
-            address: v.string(),
-            name: v.string().optional(),
-          }),
-          type: v
-            .enum(["required", "optional", "resource"] as const)
-            .default("required"),
-        })
-      )
-      .optional(),
-    isAllDay: v.boolean().optional().default(false),
-    sensitivity: v
-      .enum(["normal", "personal", "private", "confidential"] as const)
-      .optional()
-      .default("normal"),
-  }).optional(),
-});
 const schema = v.object({
-  option: v.enum(["A", "B", "C"] as const).default("A"),
-  a: v.string().dependsOn([{ field: "option", condition: /A/ }]),
-  b: v.number().dependsOn([{ field: "option", condition: /B/ }]),
-  c: v.string().dependsOn([{ field: "option", condition: /C/ }]),
-  name: v.string().minLength(2).maxLength(50).required(),
-  age: v.number().min(0).max(120).required(),
-  email: v.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).required(),
-  preferences: v
-    .object({
-      newsletter: v.boolean().default(false),
-      notifications: v.enum(["all", "mentions", "none"] as const).default("all"),
-    })
-    .required(),
+  name: v.string().minLength(2).maxLength(50),
+  age: v.number().min(0).max(120),
+  email: v.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+  preferences: v.object({
+    newsletter: v.boolean().default(false),
+    notifications: v.enum(["all", "mentions", "none"] as const).default("all"),
+  }),
+  nestedLevels: v.object({
+    level1: v.object({
+      level2: v.object({
+        level3: v.object({
+          level4: v.object({
+            info: v.string().minLength(5).maxLength(100),
+          }),
+        }),
+      }),
+    }),
+  }),
   tags: v.array(v.string().minLength(1).maxLength(20)).minLength(0).maxLength(10),
-  fileAttachmentSchema: fileAttachmentSchema.required(true),
-  eventAttachmentSchema: eventAttachmentSchema.required(true),
-});
+  union: v.union([
+    v.object({
+      value: v.string(),
+      value2: v.string().optional(),
+    }),
+    v.object({
+      value: v.number(),
+    }),
+    v.object({
+      value: v.boolean(),
+    }),
+  ]),
+})
+
+type SchemaType = v.infer<typeof schema>;
 const schemaJson = schema.toJSON();
 console.log("Fetched schema:", schemaJson);
 
