@@ -27,6 +27,11 @@ export function getDefaultValue(
     return obj;
   } else if (schema.type === "array") {
     return [];
+  } else if (schema.type === "any" || schema.type === "unknown") {
+    return schema.defaultValue !== undefined ? schema.defaultValue : null;
+  } else if (schema.type === "json") {
+    if (schema.defaultValue !== undefined) return schema.defaultValue;
+    return {};
   } else {
     return schema.defaultValue !== undefined ? schema.defaultValue : null;
   }

@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from 'react';
 import { ObjectInput } from '../../../form';
 import { toast } from 'sonner';
-import s from 'validator';
+import { SchemaType } from 'validator';
 
 // Input component
 function Input({ className = '', children, label, list, dataList, pattern, hidden, ...inputProps }: {
@@ -394,7 +394,7 @@ function getDefaultValue(schema: any, formValues: Record<string, unknown> = {}):
 }
 
 // Main Form component
-export function DynamicForm({ schema }: { schema: ObjectInput }) {
+export function DynamicForm({ schema, validatorSchema }: { schema: ObjectInput, validatorSchema: SchemaType }) {
     const [formValues, setFormValues] = useState(() => {
         // Initialize form with default values'
         const initValues: Record<string, unknown> = getDefaultValue(schema);
@@ -466,7 +466,7 @@ export function DynamicForm({ schema }: { schema: ObjectInput }) {
         return errors;
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (validatorSchema: SchemaType) => {
         const validationErrors = validateForm();
 
         if (validationErrors.length > 0) {
@@ -475,27 +475,7 @@ export function DynamicForm({ schema }: { schema: ObjectInput }) {
             return;
         }
 
-        // const response = await fetch('http://localhost:3000/submit', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(formValues),
-        // });
-
-        const schema = s.object({
-            name: s.string().minLength(2).maxLength(50).required(),
-            age: s.number().min(0).max(120).required(),
-            email: s.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).required(),
-            preferences: s
-                .object({
-                    newsletter: s.boolean().default(false),
-                    notifications: s.enum(["all", "mentions", "none"] as const).default("all"),
-                })
-                .required(),
-            tags: s.array(s.string().minLength(1).maxLength(20)).minLength(0).maxLength(10),
-        });
-        const response = schema.safeParse(formValues);
+        const response = validatorSchema.safeParse(formValues);
         if (response.success) {
             setValidValues("valid");
             toast.success('Form submitted successfully!', { description: JSON.stringify(response.data, null, 2) });
@@ -510,7 +490,7 @@ export function DynamicForm({ schema }: { schema: ObjectInput }) {
         <form onSubmit={(e) => {
             e.preventDefault();
             setValidValues("unknown");
-            handleSubmit();
+            handleSubmit(validatorSchema);
         }}>
             <fieldset className="mx-auto p-6 bg-gray-50 min-h-screen">
                 <h1 className="text-3xl font-bold mb-6 text-gray-900">Dynamic Form Generator</h1>

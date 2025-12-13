@@ -12,6 +12,7 @@ interface CodeMirrorEditorProps {
     className?: string;
     errorPaths?: string[];
     validPaths?: string[];
+    onChange?: (value: string) => void;
 }
 
 // Create effect for updating error highlights
@@ -83,21 +84,39 @@ const highlightField = StateField.define<DecorationSet>({
     provide: f => EditorView.decorations.from(f)
 });
 
-export function CodeMirrorEditor({
+function CodeMirrorBase({
     value,
-    readOnly = true,
+    readOnly,
     height = '400px',
     className = '',
     errorPaths = [],
     validPaths = [],
-}: CodeMirrorEditorProps) {
+    onChange,
+}: CodeMirrorEditorProps & { readOnly: boolean }) {
     const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<EditorView | null>(null);
+    const onChangeRef = useRef(onChange);
 
+    useEffect(() => {
+        onChangeRef.current = onChange;
+    }, [onChange]);
+
+    // Initialize editor once; avoid recreating on every value change to prevent focus loss while typing
     useEffect(() => {
         if (!containerRef.current) return;
 
         const extensions = [basicSetup, json(), oneDark, highlightField];
+
+        if (onChangeRef.current && !readOnly) {
+            extensions.push(
+                EditorView.updateListener.of((update) => {
+                    if (update.docChanged) {
+                        const newValue = update.state.doc.toString();
+                        onChangeRef.current?.(newValue);
+                    }
+                })
+            );
+        }
 
         const state = EditorState.create({
             doc: value,
@@ -117,11 +136,13 @@ export function CodeMirrorEditor({
         return () => {
             view.destroy();
         };
-    }, [readOnly, value]);
+    }, [readOnly]);
 
     // Update content when value changes
     useEffect(() => {
-        if (editorRef.current && editorRef.current.state.doc.toString() !== value) {
+        if (!editorRef.current) return;
+        const current = editorRef.current.state.doc.toString();
+        if (current !== value) {
             editorRef.current.dispatch({
                 changes: {
                     from: 0,
@@ -154,4 +175,18 @@ export function CodeMirrorEditor({
             style={{ height }}
         />
     );
+}
+
+export function EditableCodeMirror(props: Omit<CodeMirrorEditorProps, 'readOnly'>) {
+    return <CodeMirrorBase {...props} readOnly={false} />;
+}
+
+export function ReadOnlyCodeMirror(props: Omit<CodeMirrorEditorProps, 'readOnly' | 'onChange'>) {
+    return <CodeMirrorBase {...props} readOnly={true} />;
+}
+
+// Backwards compatibility: default to read-only when not specified
+export function CodeMirrorEditor(props: CodeMirrorEditorProps) {
+    const resolvedReadOnly = props.readOnly ?? true;
+    return <CodeMirrorBase {...props} readOnly={resolvedReadOnly} />;
 }

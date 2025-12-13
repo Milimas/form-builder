@@ -9,15 +9,31 @@ export interface ValidationResult {
 }
 
 /**
+  if (schema.type === "json") {
+    const target = path ? getPathValue(formData, path) : formData;
+    const valueToCheck = target ?? schema.defaultValue ?? {};
+    try {
+      if (typeof valueToCheck === "string") {
+        JSON.parse(valueToCheck);
+      } else {
+        JSON.parse(JSON.stringify(valueToCheck));
+      }
+    } catch (err) {
+      return { isValid: false, errors: [`${path || "value"} should be valid JSON`] };
+    }
+  }
+
  * Validates form data against schema
  */
-import { ObjectInput } from "../../../form/types";
+import { SchemaType } from "validator";
+import { HtmlObjectType } from "../../../../../validator/lib/types";
 
 export function validateForm(
   formValues: Record<string, unknown>,
-  schema: ObjectInput
+  schema: SchemaType
 ): ValidationResult {
   const errors: string[] = [];
+  const schemaJson: HtmlObjectType = schema.toJSON() as HtmlObjectType;
 
   // Using any for runtime schema flexibility
 
@@ -103,6 +119,62 @@ export function validateForm(
       } else if (fieldSchema.required) {
         errors.push(`${fullPath} is required`);
       }
+    } else if (fieldSchema.type === "union") {
+      // For union types, validate against at least one of the anyOf schemas
+      if (fieldSchema.anyOf && Array.isArray(fieldSchema.anyOf)) {
+        let validAgainstAny = false;
+
+        for (const variantSchema of fieldSchema.anyOf) {
+          const savedErrors = errors.length;
+
+          // Try to validate against this variant
+          if (variantSchema.type === "object" && variantSchema.properties) {
+            Object.entries(variantSchema.properties).forEach(
+              ([subKey, subSchema]) => {
+                const subValue = value?.[subKey];
+                validateField(subKey, subSchema, subValue, fullPath);
+              }
+            );
+
+            // If no new errors were added, this variant is valid
+            if (errors.length === savedErrors) {
+              validAgainstAny = true;
+              break;
+            } else {
+              // Collect these errors and rollback
+              errors.splice(savedErrors);
+            }
+          }
+        }
+
+        // If no variant was valid and field is required, add error
+        if (!validAgainstAny) {
+          if (fieldSchema.required) {
+            errors.push(`${fullPath} must match one of the union types`);
+          }
+        }
+      } else if (fieldSchema.required) {
+        errors.push(`${fullPath} is required`);
+      }
+    } else if (fieldSchema.type === "any" || fieldSchema.type === "unknown") {
+      // Any and unknown types always pass validation (accept any value)
+      // Only check if required and value is undefined
+      if (fieldSchema.required && value === undefined) {
+        errors.push(`${fullPath} is required`);
+      }
+    } else if (fieldSchema.type === "json") {
+      if (value === undefined || value === null || value === "") {
+        if (fieldSchema.required) {
+          errors.push(`${fullPath} is required`);
+        }
+      } else {
+        const raw = typeof value === "string" ? value : JSON.stringify(value);
+        try {
+          JSON.parse(raw);
+        } catch {
+          errors.push(`${fullPath} must be valid JSON`);
+        }
+      }
     } else {
       // For primitive types, check required
       if (fieldSchema.required) {
@@ -119,7 +191,7 @@ export function validateForm(
   };
 
   // Validate all fields
-  Object.entries(schema.properties).forEach(([key, fieldSchema]) => {
+  Object.entries(schemaJson.properties).forEach(([key, fieldSchema]) => {
     validateField(key, fieldSchema, formValues[key]);
   });
 

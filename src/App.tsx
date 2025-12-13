@@ -1,30 +1,31 @@
-import { ObjectInput } from "./form/index.ts";
 import { DynamicForm, useForm, FormProvider, getDefaultValue, validateForm } from "./components/input/index.ts";
-import { CodeMirrorEditor } from "./components/CodeMirrorEditor";
+import { ReadOnlyCodeMirror } from "./components/CodeMirrorEditor";
 import { Toaster, toast } from "sonner";
-import { v } from "validator";
+import { SchemaType, v } from "validator";
 import { useEffect, useState } from "react";
 
 const schema = v.object({
-  name: v.string().minLength(2).maxLength(50),
-  age: v.number().min(0).max(120),
-  email: v.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
-  preferences: v.object({
-    newsletter: v.boolean().default(false),
-    notifications: v.enum(["all", "mentions", "none"] as const).default("all"),
-  }),
-  nestedLevels: v.object({
-    level1: v.object({
-      level2: v.object({
-        level3: v.object({
-          level4: v.object({
-            info: v.string().minLength(5).maxLength(100),
-          }),
-        }),
-      }),
-    }),
-  }),
-  tags: v.array(v.string().minLength(1).maxLength(20)).minLength(0).maxLength(10),
+  // name: v.string().minLength(2).maxLength(50),
+  // age: v.number().min(0).max(120),
+  // email: v.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+  // preferences: v.object({
+  //   newsletter: v.boolean().default(false),
+  //   notifications: v.enum(["all", "mentions", "none"] as const).default("all"),
+  // }),
+  // nestedLevels: v.object({
+  //   level1: v.object({
+  //     level2: v.object({
+  //       level3: v.object({
+  //         level4: v.object({
+  //           info: v.string().minLength(5).maxLength(100),
+  //         }),
+  //       }),
+  //     }),
+  //   }),
+  // }),
+  // tags: v.array(v.string().minLength(1).maxLength(20)).minLength(0).maxLength(10),
+  // anyField: v.any(),
+  // unknownField: v.unknown(),
   union: v.union([
     v.object({
       value: v.string(),
@@ -34,16 +35,11 @@ const schema = v.object({
       value: v.number(),
     }),
     v.object({
-      value: v.boolean(),
+      value: v.boolean().default(true),
+      json: v.json(),
     }),
   ]),
-})
-
-type SchemaType = v.infer<typeof schema>;
-const schemaJson = schema.toJSON();
-console.log("Fetched schema:", schemaJson);
-
-
+});
 
 export default function App() {
   const schemaJson = schema.toJSON();
@@ -57,14 +53,14 @@ export default function App() {
 
   return (
     <FormProvider initialValues={initialValues}>
-      <AppContent schema={schemaJson as ObjectInput} />
+      <AppContent schema={schema} />
     </FormProvider>
   );
 }
 
-function AppContent({ schema }: { schema: ObjectInput }) {
+function AppContent({ schema }: { schema: SchemaType }) {
   const { formValues } = useForm();
-  const schemaJson = schema;
+  const schemaJson = schema.toJSON();
   const [errorPaths, setErrorPaths] = useState<string[]>([]);
   const [isValid, setIsValid] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
@@ -74,7 +70,7 @@ function AppContent({ schema }: { schema: ObjectInput }) {
 
   // Validate on form value changes
   useEffect(() => {
-    const validationResult = validateForm(formValues, schemaJson);
+    const validationResult = validateForm(formValues, schema);
 
     if (validationResult.errors.length > 0) {
       // Extract field paths from error messages
@@ -94,7 +90,7 @@ function AppContent({ schema }: { schema: ObjectInput }) {
       setIsValid(true);
       setHasValidated(true);
     }
-  }, [formValues, schemaJson, hasValidated, isValid]);
+  }, [formValues, schema, hasValidated, isValid]);
 
   return (
     <div className="h-screen flex flex-col bg-gray-900">
@@ -116,9 +112,8 @@ function AppContent({ schema }: { schema: ObjectInput }) {
               <h2 className="text-lg font-semibold text-white">Submission Result</h2>
             </div>
             <div className="flex-1 overflow-hidden">
-              <CodeMirrorEditor
+              <ReadOnlyCodeMirror
                 value={submissionResult}
-                readOnly={true}
                 height="100%"
               />
             </div>
@@ -134,9 +129,8 @@ function AppContent({ schema }: { schema: ObjectInput }) {
               </h2>
             </div>
             <div className="flex-1 overflow-hidden">
-              <CodeMirrorEditor
+              <ReadOnlyCodeMirror
                 value={JSON.stringify(formValues, null, 2)}
-                readOnly={true}
                 height="100%"
                 errorPaths={!isValid ? errorPaths : []}
               />
@@ -149,9 +143,8 @@ function AppContent({ schema }: { schema: ObjectInput }) {
               <h2 className="text-lg font-semibold text-white">Schema</h2>
             </div>
             <div className="flex-1 overflow-hidden">
-              <CodeMirrorEditor
+              <ReadOnlyCodeMirror
                 value={JSON.stringify(schemaJson, null, 2)}
-                readOnly={true}
                 height="100%"
               />
             </div>
@@ -166,9 +159,8 @@ function AppContent({ schema }: { schema: ObjectInput }) {
           <div className="flex-1 overflow-y-auto p-6 flex justify-center">
             <div className="w-full max-w-2xl">
               <DynamicForm
-                schema={schemaJson}
+                schema={schema}
                 onSubmitSuccess={(values) => {
-                  console.log('Setting submission result:', values);
                   // Filter out undefined values before stringifying
                   const filteredValues = JSON.parse(JSON.stringify(values));
                   const jsonString = JSON.stringify(filteredValues, null, 2);

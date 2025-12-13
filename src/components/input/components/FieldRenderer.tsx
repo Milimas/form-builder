@@ -3,6 +3,8 @@ import { Input } from './Input';
 import { Select } from './Select';
 import { Checkbox } from './Checkbox';
 import { DatetimeInput } from './DatetimeInput';
+import { Union } from './Union';
+import { EditableCodeMirror } from '../../CodeMirrorEditor';
 import { useForm } from '../hooks';
 import { evaluateDependsOn, getDefaultValue, getNestedValue } from '../utils';
 
@@ -213,7 +215,83 @@ export function FieldRenderer({
                 );
             }
 
+        case 'union':
+            return (
+                <Union
+                    label={fieldKey}
+                    fieldKey={fieldKey}
+                    anyOf={fieldSchema.anyOf || []}
+                    required={isFieldRequired}
+                    value={fieldValue}
+                    onChange={handleChange}
+                    parentPath={parentPath}
+                />
+            );
+
+        case 'any':
+        case 'unknown':
+            return (
+                <div className="mb-4">
+                    <label className="block mb-2 font-semibold text-gray-200">
+                        {fieldKey}
+                        {isFieldRequired && <span className="text-red-500 ml-1">*</span>}
+                        <span className="ml-2 text-xs text-gray-400">({fieldSchema.type})</span>
+                    </label>
+                    <EditableCodeMirror
+                        value={
+                            typeof fieldValue === 'string'
+                                ? fieldValue
+                                : JSON.stringify(fieldValue ?? '', null, 2)
+                        }
+                        height="200px"
+                        className="border border-gray-700"
+                        onChange={(val: string) => {
+                            try {
+                                const parsed = JSON.parse(val);
+                                handleChange(parsed);
+                            } catch {
+                                handleChange(val);
+                            }
+                        }}
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                        Accepts any value type. Enter JSON for objects/arrays or plain text.
+                    </p>
+                </div>
+            );
+
+        case 'json':
+            return (
+                <div className="mb-4">
+                    <label className="block mb-2 font-semibold text-gray-200">
+                        {fieldKey}
+                        {isFieldRequired && <span className="text-red-500 ml-1">*</span>}
+                        <span className="ml-2 text-xs text-blue-400">(json)</span>
+                    </label>
+                    <EditableCodeMirror
+                        value={
+                            typeof fieldValue === 'string'
+                                ? fieldValue
+                                : JSON.stringify(fieldValue ?? {}, null, 2)
+                        }
+                        height="220px"
+                        className="border border-blue-600/50"
+                        onChange={(val: string) => {
+                            // Always store raw string to match validator JSON schema
+                            handleChange(val);
+                        }}
+                    />
+                    <p className="text-xs text-blue-300 mt-1">
+                        Must be valid JSON string. Invalid JSON will fail validation.
+                    </p>
+                </div>
+            );
+
         default:
-            return null;
+            return (
+                <div className="mb-4 text-red-500">
+                    Unsupported field type: {fieldSchema.type}
+                </div>
+            );
     }
 }
