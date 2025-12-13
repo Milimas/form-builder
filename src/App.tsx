@@ -2,70 +2,70 @@ import { ObjectInput } from "./form/index.ts";
 import { DynamicForm, useForm, FormProvider, getDefaultValue, validateForm } from "./components/input/index.ts";
 import { CodeMirrorEditor } from "./components/CodeMirrorEditor";
 import { Toaster, toast } from "sonner";
-import { s } from "validator";
+import { v } from "validator";
 import { useEffect, useState } from "react";
 
-const fileAttachmentSchema = s.object({
-  "@odata.type": s.string().default("#microsoft.graph.fileAttachment").readOnly(),
-  name: s.string().default("Attached File"),
-  contentType: s.string().default("text/plain"),
-  contentBytes: s.string(),
+const fileAttachmentSchema = v.object({
+  "@odata.type": v.string().default("#microsoft.graph.fileAttachment").readOnly(),
+  name: v.string().default("Attached File"),
+  contentType: v.string().default("text/plain"),
+  contentBytes: v.string(),
 });
 
-const eventAttachmentSchema = s.object({
-  "@odata.type": s.string().default("#microsoft.graph.eventAttachment").readOnly(),
-  name: s.string().default("Attached Event"),
-  event: s.object({
-    subject: s.string(),
-    body: s
+const eventAttachmentSchema = v.object({
+  "@odata.type": v.string().default("#microsoft.graph.eventAttachment").readOnly(),
+  name: v.string().default("Attached Event"),
+  event: v.object({
+    subject: v.string(),
+    body: v
       .object({
-        contentType: s.enum(["None", "Text", "HTML"] as const).optional(),
-        text: s.string().dependsOn([{ field: "eventAttachmentSchema.event.body.contentType", condition: /Text/ }]),
-        html: s.html().dependsOn([{ field: "eventAttachmentSchema.event.body.contentType", condition: /HTML/ }]),
+        contentType: v.enum(["None", "Text", "HTML"] as const).optional(),
+        text: v.string().dependsOn([{ field: "eventAttachmentSchema.event.body.contentType", condition: /Text/ }]),
+        html: v.html().dependsOn([{ field: "eventAttachmentSchema.event.body.contentType", condition: /HTML/ }]),
       })
       .optional(),
-    start: s.string().optional(),
-    end: s.string().optional(),
-    location: s
+    start: v.string().optional(),
+    end: v.string().optional(),
+    location: v
       .object({
-        displayName: s.string().optional(),
+        displayName: v.string().optional(),
       })
       .optional(),
-    attendees: s
+    attendees: v
       .array(
-        s.object({
-          emailAddress: s.object({
-            address: s.string(),
-            name: s.string().optional(),
+        v.object({
+          emailAddress: v.object({
+            address: v.string(),
+            name: v.string().optional(),
           }),
-          type: s
+          type: v
             .enum(["required", "optional", "resource"] as const)
             .default("required"),
         })
       )
       .optional(),
-    isAllDay: s.boolean().optional().default(false),
-    sensitivity: s
+    isAllDay: v.boolean().optional().default(false),
+    sensitivity: v
       .enum(["normal", "personal", "private", "confidential"] as const)
       .optional()
       .default("normal"),
   }).optional(),
 });
-const schema = s.object({
-  option: s.enum(["A", "B", "C"] as const).default("A"),
-  a: s.string().dependsOn([{ field: "option", condition: /A/ }]),
-  b: s.number().dependsOn([{ field: "option", condition: /B/ }]),
-  c: s.string().dependsOn([{ field: "option", condition: /C/ }]),
-  name: s.string().minLength(2).maxLength(50).required(),
-  age: s.number().min(0).max(120).required(),
-  email: s.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).required(),
-  preferences: s
+const schema = v.object({
+  option: v.enum(["A", "B", "C"] as const).default("A"),
+  a: v.string().dependsOn([{ field: "option", condition: /A/ }]),
+  b: v.number().dependsOn([{ field: "option", condition: /B/ }]),
+  c: v.string().dependsOn([{ field: "option", condition: /C/ }]),
+  name: v.string().minLength(2).maxLength(50).required(),
+  age: v.number().min(0).max(120).required(),
+  email: v.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).required(),
+  preferences: v
     .object({
-      newsletter: s.boolean().default(false),
-      notifications: s.enum(["all", "mentions", "none"] as const).default("all"),
+      newsletter: v.boolean().default(false),
+      notifications: v.enum(["all", "mentions", "none"] as const).default("all"),
     })
     .required(),
-  tags: s.array(s.string().minLength(1).maxLength(20)).minLength(0).maxLength(10),
+  tags: v.array(v.string().minLength(1).maxLength(20)).minLength(0).maxLength(10),
   fileAttachmentSchema: fileAttachmentSchema.required(true),
   eventAttachmentSchema: eventAttachmentSchema.required(true),
 });
