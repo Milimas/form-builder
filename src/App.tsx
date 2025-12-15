@@ -1,7 +1,8 @@
 import { DynamicForm, useForm, FormProvider, getDefaultValue, validateForm } from "./components/input/index.ts";
 import { ReadOnlyCodeMirror } from "./components/CodeMirrorEditor";
 import { Toaster, toast } from "sonner";
-import { SchemaType, v } from "validator";
+import type { SchemaType } from "validator";
+import { v } from "validator";
 import { useEffect, useState } from "react";
 
 const schema = v.object({
@@ -26,19 +27,21 @@ const schema = v.object({
   // tags: v.array(v.string().minLength(1).maxLength(20)).minLength(0).maxLength(10),
   // anyField: v.any(),
   // unknownField: v.unknown(),
-  union: v.union([
-    v.object({
-      value: v.string(),
-      value2: v.string().optional(),
-    }),
-    v.object({
-      value: v.number(),
-    }),
-    v.object({
-      value: v.boolean().default(true),
-      json: v.json(),
-    }),
-  ]),
+  // union: v.union([
+  //   v.object({
+  //     value: v.string(),
+  //     value2: v.string().optional(),
+  //   }),
+  //   v.object({
+  //     value: v.number(),
+  //   }),
+  //   v.object({
+  //     value: v.boolean().default(true),
+  //     json: v.json(),
+  //   }),
+  // ]),
+  record: v.record(v.string().min(2), v.string()),
+
 });
 
 export default function App() {

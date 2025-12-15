@@ -5,6 +5,7 @@ import { Checkbox } from './Checkbox';
 import { DatetimeInput } from './DatetimeInput';
 import { Union } from './Union';
 import { EditableCodeMirror } from '../../CodeMirrorEditor';
+import { RecordInput } from './Record';
 import { useForm } from '../hooks';
 import { evaluateDependsOn, getDefaultValue, getNestedValue } from '../utils';
 
@@ -76,6 +77,19 @@ export function FieldRenderer({
                     list={fieldSchema.list}
                     dataList={fieldSchema.dataList}
                     required={isFieldRequired}
+                />
+            );
+
+        case 'record':
+            return (
+                <RecordInput
+                    fieldKey={fieldKey}
+                    keySchema={fieldSchema.keySchema}
+                    valueSchema={fieldSchema.valueSchema}
+                    value={fieldValue}
+                    required={isFieldRequired}
+                    parentPath={parentPath}
+                    onChange={handleChange}
                 />
             );
 
@@ -155,7 +169,6 @@ export function FieldRenderer({
                     ))}
                 </fieldset>
             );
-
         case 'array':
             {
                 const arrayValue = (fieldValue as unknown[]) || [];
