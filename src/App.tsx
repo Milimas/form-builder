@@ -40,7 +40,8 @@ const schema = v.object({
   //     json: v.json(),
   //   }),
   // ]),
-  record: v.record(v.string().min(2), v.string()),
+  record: v.record(v.string().min(10), v.number()),
+  record2: v.record(v.number()).optional(),
 
 });
 
