@@ -79,8 +79,25 @@ function AppContent({ schema }: { schema: SchemaType }) {
     if (validationResult.errors.length > 0) {
       // Extract field paths from error messages
       const paths = validationResult.errors.map(err => {
-        const match = err.match(/^(.+?)\s+(is required|must have)/);
-        return match ? match[1] : '';
+        // Handle "path: message" format from safeParse
+        if (err.includes(':')) {
+          const colonIndex = err.indexOf(':');
+          const pathPart = err.substring(0, colonIndex).trim();
+          return pathPart;
+        }
+        // Handle "fieldName is required" format
+        const requiredMatch = err.match(/^(.+?)\s+is required/);
+        if (requiredMatch) return requiredMatch[1];
+
+        // Handle "fieldName must have/be..." format
+        const mustMatch = err.match(/^(.+?)\s+must\s+/);
+        if (mustMatch) return mustMatch[1];
+
+        // Handle "fieldName should..." format
+        const shouldMatch = err.match(/^(.+?)\s+should\s+/);
+        if (shouldMatch) return shouldMatch[1];
+
+        return '';
       }).filter(Boolean);
 
       setErrorPaths(paths);
