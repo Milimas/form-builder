@@ -40,10 +40,25 @@ const schema = v.object({
   //     json: v.json(),
   //   }),
   // ]),
-  record: v.record(v.string().min(10), v.number()),
-  record2: v.record(v.number()).optional(),
+  // record: v.record(v.string().min(10), v.number()),
+  // record2: v.record(v.number()).optional(),
+
+  options: v.enum(['option1', 'option2', 'option3'] as const).default('option1'),
+  option1: v.string().dependsOn([{ field: 'options', condition: /option1/ }]),
+  option2: v.number().dependsOn([{ field: 'options', condition: /option2/ }]),
+  option3: v.boolean().dependsOn([{ field: 'options', condition: /option3/ }]),
+  array: v.array(
+    v.array(
+      v.object({
+        x: v.number().min(-100).max(100).default(0),
+        y: v.number().min(-100).max(100).default(0),
+      })
+    )
+  ),
 
 });
+
+console.log('Schema JSON:', JSON.stringify(schema.toJSON(), null, 2));
 
 export default function App() {
   const schemaJson = schema.toJSON();

@@ -27,7 +27,8 @@ export function FieldRenderer({
     const fieldValue = getNestedValue(formValues, fullPath);
 
     // Check if field should be visible based on dependsOn
-    const isVisible = evaluateDependsOn(fieldSchema['data-depends-on'], formValues);
+    // Pass fullPath to resolve relative field references in dependsOn
+    const isVisible = evaluateDependsOn(fieldSchema['data-depends-on'], formValues, fullPath);
 
     // Track previous visibility state
     const prevVisibleRef = useRef(isVisible);

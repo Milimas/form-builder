@@ -49,7 +49,8 @@ export function validateForm(
 
     const isVisible = evaluateDependsOn(
       fieldSchema["data-depends-on"],
-      formValues
+      formValues,
+      fullPath
     );
     if (!isVisible) {
       return;
