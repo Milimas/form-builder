@@ -300,6 +300,28 @@ export function FieldRenderer({
                 </div>
             );
 
+        case 'code':
+            return (
+                <div className="mb-4">
+                    <label className="block mb-2 font-semibold text-gray-200">
+                        {fieldKey}
+                        {isFieldRequired && <span className="text-red-500 ml-1">*</span>}
+                        <span className="ml-2 text-xs text-green-400">(code)</span>
+                    </label>
+                    <EditableCodeMirror
+                        value={fieldValue ?? fieldSchema?.defaultValue ?? ''}
+                        height="200px"
+                        className="border border-green-600/50"
+                        onChange={(val: string) => {
+                            handleChange(val);
+                        }}
+                    />
+                    <p className="text-xs text-green-300 mt-1">
+                        Enter code snippet as plain text.
+                    </p>
+                </div>
+            );
+
         default:
             return (
                 <div className="mb-4 text-red-500">
