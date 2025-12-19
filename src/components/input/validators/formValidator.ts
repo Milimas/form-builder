@@ -25,7 +25,7 @@ export interface ValidationResult {
 
  * Validates form data against schema
  */
-import { SchemaType } from "validator";
+import v, { SchemaType } from "validator";
 import { HtmlObjectType } from "../../../../../validator/lib/types";
 
 export function validateForm(
@@ -33,7 +33,8 @@ export function validateForm(
   schema: SchemaType
 ): ValidationResult {
   const errors: string[] = [];
-  const schemaJson: HtmlObjectType = schema.toJSON() as HtmlObjectType;
+  const schemaJson: HtmlObjectType<v.infer<typeof schema>> =
+    schema.toJSON() as HtmlObjectType<v.infer<typeof schema>>;
 
   // Using any for runtime schema flexibility
 

@@ -3,7 +3,7 @@ import { useForm } from './hooks/useForm';
 import { FieldRenderer } from './components/FieldRenderer';
 import { validateForm } from './validators';
 import { toast } from 'sonner';
-import { SchemaType } from 'validator';
+import v, { SchemaType } from 'validator';
 import { HtmlObjectType } from '../../../../validator/lib/types';
 
 // Using any for schema to support flexible runtime schemas
@@ -78,7 +78,7 @@ function DynamicFormContent({ schema, onSubmit, onSubmitSuccess, onSubmitError }
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 h-full">
             <div className="flex-1 overflow-y-auto pr-4">
-                {Object.entries((schemaJson as HtmlObjectType).properties || {}).map(([fieldKey, fieldSchema]) => (
+                {Object.entries((schemaJson as HtmlObjectType<v.infer<typeof schema>>).properties || {}).map(([fieldKey, fieldSchema]) => (
                     <FieldRenderer
                         key={fieldKey}
                         fieldKey={fieldKey}

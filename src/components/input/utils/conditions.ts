@@ -44,15 +44,17 @@ export function evaluateDependsOn(
     // Check if fieldPath starts with a parent path component
     // For example: if currentPath is "array.0.option1" and fieldPath is "array.options"
     // We need to check if "array" matches and then resolve relative to current item
-    
+
     // Find common prefix
-    let commonPrefixLength = 0;
     for (let i = 0; i < Math.min(currentParts.length, fieldParts.length); i++) {
       if (currentParts[i] === fieldParts[i] || /^\d+$/.test(currentParts[i])) {
         // Match or current part is an index
-        if (currentParts[i] === fieldParts[i]) {
-          commonPrefixLength = i + 1;
-        } else if (/^\d+$/.test(currentParts[i]) && i > 0 && currentParts[i - 1] === fieldParts[i - 1]) {
+        if (
+          currentParts[i] !== fieldParts[i] &&
+          /^\d+$/.test(currentParts[i]) &&
+          i > 0 &&
+          currentParts[i - 1] === fieldParts[i - 1]
+        ) {
           // Current part is array index, previous parts match
           // Replace the field path with the current index
           const resolvedParts = [...fieldParts];

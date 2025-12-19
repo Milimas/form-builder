@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { SchemaType } from 'validator';
+import v, { SchemaType } from 'validator';
 import { HtmlObjectType } from '../../../../../validator/lib/types';
 
 // Input component
@@ -395,7 +395,7 @@ function getDefaultValue(schema: any, formValues: Record<string, unknown> = {}):
 
 // Main Form component
 export function DynamicForm({ schema }: { schema: SchemaType }) {
-    const schemaJson: HtmlObjectType = schema.toJSON() as HtmlObjectType;
+    const schemaJson: HtmlObjectType<v.infer<typeof schema>> = schema.toJSON() as HtmlObjectType<v.infer<typeof schema>>;
     const [formValues, setFormValues] = useState(() => {
         // Initialize form with default values'
         const initValues: Record<string, unknown> = getDefaultValue(schemaJson);

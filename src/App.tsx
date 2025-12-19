@@ -6,59 +6,15 @@ import { v } from "validator";
 import { useEffect, useState } from "react";
 
 const schema = v.object({
-  // name: v.string().minLength(2).maxLength(50),
-  // age: v.number().min(0).max(120),
-  // email: v.string().pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
-  // preferences: v.object({
-  //   newsletter: v.boolean().default(false),
-  //   notifications: v.enum(["all", "mentions", "none"] as const).default("all"),
-  // }),
-  // nestedLevels: v.object({
-  //   level1: v.object({
-  //     level2: v.object({
-  //       level3: v.object({
-  //         level4: v.object({
-  //           info: v.string().minLength(5).maxLength(100),
-  //         }),
-  //       }),
-  //     }),
-  //   }),
-  // }),
-  // tags: v.array(v.string().minLength(1).maxLength(20)).minLength(0).maxLength(10),
-  // anyField: v.any(),
-  // unknownField: v.unknown(),
-  // union: v.union([
-  //   v.object({
-  //     value: v.string(),
-  //     value2: v.string().optional(),
-  //   }),
-  //   v.object({
-  //     value: v.number(),
-  //   }),
-  //   v.object({
-  //     value: v.boolean().default(true),
-  //     json: v.json(),
-  //   }),
-  // ]),
-  // record: v.record(v.string().min(10), v.number()),
-  // record2: v.record(v.number()).optional(),
-
-  options: v.enum(['option1', 'option2', 'option3'] as const).default('option1'),
-  option1: v.string().dependsOn([{ field: 'options', condition: /option1/ }]),
-  option2: v.number().dependsOn([{ field: 'options', condition: /option2/ }]),
-  option3: v.boolean().dependsOn([{ field: 'options', condition: /option3/ }]),
-  array: v.array(
-    v.array(
-      v.object({
-        x: v.number().min(-100).max(100).default(0),
-        y: v.number().min(-100).max(100).default(0),
-      })
-    )
-  ),
-
+  flag: v.boolean(),
+  value: v.string().dependsOn([{ field: "flag", condition: /true/ }]),
 });
 
-console.log('Schema JSON:', JSON.stringify(schema.toJSON(), null, 2));
+const result = schema.safeParse({ flag: true });
+
+console.log(result);
+
+console.log("Schema JSON:", JSON.stringify(schema.toJSON(), null, 2));
 
 export default function App() {
   const schemaJson = schema.toJSON();
@@ -84,8 +40,6 @@ function AppContent({ schema }: { schema: SchemaType }) {
   const [isValid, setIsValid] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<string>('');
-
-  console.log('Current submissionResult state:', submissionResult);
 
   // Validate on form value changes
   useEffect(() => {
